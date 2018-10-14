@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter27-链模式</title>
+		
+		
+		
+		<script src="js/jquery-1.12.0.js"></script>
+	</head>
+	<body>
+		链模式： 通过在对象的每一个方法中调用执行完毕后返回当前对象this来实现。
+		
+		使用场景：  类似于jquery的链式调用。
+		
+		<div class="container">
+			<ul id="lists">
+				<li class="item">1</li>
+				<li class="item">12</li>
+				<li class="item">123</li>
+				<li class="item">1234</li>
+				<li class="item">12345</li>
+			</ul>
+			<div id="test">test</div>
+		</div>
+		
+		<script>
+			/*
+			//原型式继承
+			var A = function(){};
+			A.prototype = {
+				length: 2,
+				size: function(){
+					return this.length;
+				},
+				say: function(){
+					console.log('say');
+				}
+			};
+			
+
+
+//			console.log(A.size());  
+			//A.size is not a function,
+			//size绑定在了A的原型上，没有绑定到其自身上
+			
+//			console.log(A().size()); 
+			// Cannot read property 'size' of undefined
+			//A函数对象执行的结果是没有返回值的，所以找不到size方法。
+			
+			var a = new A();
+			console.log(a.size());  // 2
+			
+			//前面的A().size()会出错，是因为A()方法没有返回值，故而更无法访问到size();		
+			//我们可以借助一个对象来实现对size()的访问
+			var A = function(){
+				return B;
+			};
+			var B = A.prototype = {
+				length: 2,
+				size: function() {
+					return this.length;
+				},
+				say: function() {
+					console.log('say');
+				}
+			} ;
+			
+			
+			console.log(A().size()); // 2
+			
+			
+			//用B作为中间值我们实现了对size()方法的调用，但是这样也
+			//多定义了一个变量，为了减少变量的创建，索性将B对象看做是A的一个属性设置。
+			
+			var A = function() {
+				return A.fn;
+			};
+			A.fn = A.prototype = {
+				length: 2,
+				size: function() {
+					return this.length;
+				},
+				say: function() {
+					console.log('say');
+				}
+			}
+			
+			console.log(A().size()); // 2
+			
+			
+			//要想像jquery一样结果返回一个元素簇，而此处返回的是A.fn对象，这显然是不能满足
+			//需求，为此可以添加一个方法如init()，在该方法中返回获取到的元素。
+			
+			var A = function(selector) {
+				return A.fn.init(selectors);
+			}
+			
+			A.fn = A.prototype = {
+				init: function(selector) {
+					return document.getElementById(selector);
+				},
+				length: 2,
+				size: function() {
+					return this.length;
+				}
+			};
+			*/
+			//虽然返回了结果簇，但是，我们还需要返回的对象中也要有A.fn中的方法。
+			//而我们已经返回了 结果簇，不可能再同时返回另一个对象。
+			//此时，可以将结果簇和A.fn（此处可用this表示）收归到一个对象中。
+			
+			
+			
+			/*
+			var A = function(selector) {
+				return A.fn.init(selector);
+			}
+			
+			A.fn = A.prototype = {
+				init: function(selector) {
+					this[0] =  document.getElementById(selector);
+					this.length = 1; //校正 length属性
+					return this;  //返回当前对象
+				},
+				length: 2,
+				size: function() {
+					return this.length;
+				}
+				
+			};
+			
+			
+			var demo = new A('lists');
+			console.log(demo);   //{0: ul#lists, init: ƒ, length: 1, size: ƒ}
+			console.log(demo.size()); // 1
+
+			
+			console.log(A('test')); //{0: div#test, init: ƒ, length: 1, size: ƒ}
+			console.log(demo);  //{0: div#test, init: ƒ, length: 1, size: ƒ}
+			
+			//上述测试代码可以看出，后面的test获得的元素覆盖了前面的lists
+			console.log(A.fn[0]);  //<div id="test">test</div>
+			console.log(A.fn.size());  // 1
+			//原因在于每一次执行  A.fn.init()返回的都是同一个对象，即A.fn和A.prototype。
+			//不仅如此，size方法也是共用的。
+			
+			*/		
+			
+			
+			//要解决覆盖问题，可以直接用new 关键字复制创建即可。
+			var A = function(selector) {
+				return new  A.fn.init(selector);
+			}
+			
+			
+			A.fn = A.prototype = {
+//				constructor: A,
+				init: function(selector) {
+					this[0] =  document.getElementById(selector);
+					this.length = 1; //校正 length属性
+					console.log(this === A.fn, this === A.prototype , this);  
+					return this;  //返回当前对象
+				},
+				length: 2,
+				size: function() {
+					return this.length;
+				}
+				
+			};			
+			
+			A.fn.init.prototype = A.fn;
+			
+//			var mylists = A('lists');
+//			var mytest = A('test');
+			
+
+//			console.log(mylists); // false false  init {0: ul#lists, length: 1}
+//			console.log(mytest);  //false false   init {0: div#test, length: 1}
+//			console.log(mylists); //false false   init {0: ul#lists, length: 1}
+			
+//			console.log(mylists.__proto__);			
+//			console.log(A('test').size());  //TypeError: A(...).size is not a function
+			
+			//size()方法的丢失，主要是A的构造函数中返回的A.fn.init()  与 new A.fn.init()的实现的差别造成的
+			//A.fn.init()中, 返回的this 是 指向当前对象，即A.fn 和A.prototype
+			//new  A.fn.init(),由于进行new对对象内的属性复制，所以this 指向的就不是A.fn和A.prototype,
+			//实际上 new  A.fn.init()其构造函数是A.fn.init 或A.init , 或者可以说是 A.fn.init = A.init;
+			//所以将A.init 带入 A.fn.init中的init就可以得到A.fn.A.init。
+			
+			//原型对象中的方法，是在构造函数中通过new关键字执行时才能被构造函数获得，所以平时构造函数是
+			//获取不到原型对象中的方法的。
+			
+			
+			console.log(A('test'));
+			console.log(A('test').size());  // 1
+			console.log($('#test'));
+			
+			// jquery中的结果更类似于一个数组，而我们的自定义的A更像是一个对象，
+
+			
+			
+			
+		</script>
+	</body>
+</html>

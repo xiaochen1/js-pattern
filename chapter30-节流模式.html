@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter30-节流模式</title>
+	</head>
+	<body>
+		节流模式的核心思想：  创建计时器，延迟程序的执行。<br />
+		防抖：   <br />
+			类似于电梯，每次有人进来，都要重新等待一定的时间才可运行。核心在于每次调用该函数时都要清除依次计时器并
+			重新定义计时器。 <br />
+		节流器： <br />
+			与电梯差不多，只不过，只要有人进来，就开始计时，一旦超过规定时间就会启动，无论
+		       中间是否有人进来，都不会对该计时产生影响。对于这个规定时间的判断，可以通过计算两次
+		        执行函数的时间差来判断是否要执行，也可以借助setTimeout()直接来作为判断依据，将要执行的函数
+		        放到setTimeout()的回调中。<br />
+		
+		
+		
+		
+		<img src="img/win8_05.jpg" alt="" />
+		<img src="img/win8_05.jpg" alt="" />
+		<img src="img/win8_05.jpg" alt="" />
+		<img src="img/win8_05.jpg" alt="" />
+		<img src="img/win8_05.jpg" alt="" />
+		<img src="img/win8_05.jpg" alt="" />
+		<script>
+			/*
+			console.log(new Date());
+			var mytimeout = setTimeout(function() {
+				var i=0;
+				console.log(1);
+				console.log(new Date());
+			}, 3000);*/
+			
+			//防抖, 以定时器作为判断执行时机，当超出定时器规定的时间时执行函数。
+			/*
+			function _debounce(fn,wait) {
+				var timer = null;
+				var num = 0;
+				
+				return function(){					
+					clearTimeout(timer);
+					timer = setTimeout(function() {
+						fn();
+					},wait);					
+				}
+			}
+			
+			function hi(time){
+				console.log('hi');
+			}
+			
+			window.onscroll = _debounce(hi, 2000);
+			
+			*/
+			
+			
+			//节流 ,在规定的时间内必须执行一次
+			//通过判断两次的执行时间差决定是否要执行函数。
+			
+			function throttle(fn,options,musttime) {
+				var lasttime = null,
+				    timer = null,
+				    _self = this,
+				    args = arguments[1];
+				return function() {
+					if(!lasttime){lasttime = new Date();}
+					var now = new Date();
+//					console.log(lasttime);
+//					console.log(now - lasttime);
+//					console.log(musttime);
+					if( (now-lasttime) > musttime) {
+						fn.call(_self, args); 
+						lasttime = new Date();
+						clearTimeout(timer);
+						timer = null;
+					} else {
+						clearTimeout(timer);
+						timer = setTimeout(fn, musttime);
+						return ;
+					}				
+				}
+			}
+			
+			/*
+			//节流, 通过定时器作为执行时机
+			function throttle(fn,options,musttime) {
+				var first = null,
+				    timer = null,
+				    _self = this,
+				    myfunc = fn,
+				    args = arguments[1];
+				return function(){
+					if(!first){
+						myfunc.apply(_self ,  options);
+						first = true;
+						return ;
+					}
+					
+					if(timer){return false;}
+					
+					timer = setTimeout(function(){						
+						clearTimeout(timer);
+						timer = null;
+						myfunc.call(_self ,  options);						
+					}, musttime || 500);
+				}
+				
+			}*/
+			function hi(time) {
+				console.log('hi');
+			}
+			window.onscroll =  throttle(hi,  {immediate: true},  3000);
+			
+
+			
+
+		</script>
+	</body>
+</html>

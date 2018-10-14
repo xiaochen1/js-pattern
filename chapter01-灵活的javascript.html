@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>灵活的js</title>
+	</head>
+
+	<body>
+
+		<script>
+			/*
+						//对象收编变量
+						 	var Person = {
+						 		
+						 		checkName: function(){alert('对象收编变量');},
+						 		checkAge: function(){alert('对象收编变量');}
+						 	};
+						 	Person.checkAge(); //对象收编变量
+						*/
+
+			/*
+			//真假对象
+			var Person = function(){
+				return {
+					checkName: function(){alert("呵呵哒");}
+				}
+			}
+			
+			var person1 = new Person();
+			person1.checkName(); //呵呵哒
+			//实际上person1和Person类没有任何关系。person1是Person执行后返回的对象
+			//这是非真正意义上的类的创建方式， 因为person1和 Person类没有任何的关系。
+			 */
+
+			/*
+			//真正的类类的创建
+			//new Person时，新创建的对象会将this上的属性复制成自己的属性
+			//然后这会造成资源的浪费，此时可应用原型链来将需要的属性将其定义为原型的方法
+			var Person = function(){
+				this.checkName = function(){alert('我的名字');}
+			}
+			var person1 = new Person();
+			person1.checkName();  // 我的名字
+			*/
+
+			// 为原型添加方法
+			/*
+			Function.prototype.check = function(){alert('check');}			
+			var Person = function(){}
+			console.log(Person.check()); // check
+			Person.prototype.checkName = function(){alert('我的名字');}
+			var person1 = new Person();
+			person1.checkName();  // 我的名字
+			person1.check();  //person1.check is not a function,所有通过new生成的对象其原型都是Object
+
+			
+			//此处为javascript的原生对象类Function的原型添加的方法会污染原生的对象Function。
+			*/
+			//但是可以抽象出一个统一添加方法的功能方法。这样的只需往Function添加一个方法就可以完成向某一函数添加多个原型函数
+
+			/*
+			Function.prototype.addMethod = function (name,fn){
+				this[name] = fn;				
+				var age = 10;
+				console.log(this);
+				return this ;//方便链式添加				
+			}
+			var method = function(){}
+			method.addMethod('mymethod', function () {alert('我的方法');} );
+			method.mymethod(); //我的方法
+			
+			var Person = function(){var person = "Person类";}
+			Person.addMethod('hi', function () { alert('你好啊');} )
+						.addMethod("say",function(){alert('say');});
+			Person.hi(); //你好啊
+			console.log(Person.prototype);
+			console.log(Person.prototype.constructor); //function (){var person = "Person类";}
+			console.log(Person.constructor);  //function Function() { [native code] }
+			*/
+
+			/*
+				var Person = function(){
+					return {
+						getName: function(){console.log('我的名字');}
+					}
+				};
+				var person1 = Person();
+				person1.getName(); // 我的名字
+			*/
+			/*
+			    var Person = function(name){
+			    	this.name = name;
+			    	this.getName = function(){
+			    		return this.name;
+			    	}
+			    };
+			    Person.prototype.addr = "上海彭浦新村"; // 为Person的原型添加一个addr属性
+			    var  person1 = new Person('小明');
+			    console.log(person1.getName()); // 小明
+			    console.log(person1.addr); // 上海彭浦新村, 原型链上继承得到的
+			    console.log(person1.hasOwnProperty('name'));  // true
+			    console.log(person1.hasOwnProperty('addr'));  // false		          
+			 */
+			/*
+			  Function.prototype.addMethod = function(name,fn){
+			  	this.prototype[name] = fn;
+			  }
+			  var Method = function(){};
+			  Method.addMethod('getName',function(){
+			  	return '我的名字';
+			  });
+			  
+			  var method1 = new Method();
+			  console.log(method1.getName()); //我的名字
+			 */
+			
+			
+			
+			// 链式调用
+			//函数也是对象
+			/*
+			var checkObject = function(){}
+			checkObject.prototype = {
+				checkName: function(){
+					console.log("校验姓名");
+					return this;
+				},
+				checkEmail: function(){
+					console.log("校验邮箱");
+					return this;
+				},
+				
+				checkPassword: function(){
+					console.log("校验密码");
+					return this;
+				}
+			}
+			
+			var test = new checkObject();
+			test.checkName().checkEmail().checkPassword();
+			//校验姓名  校验邮箱  校验密码
+			*/
+			
+			/*
+			Function.prototype.addMethod  = function(name, func){
+				this.prototype[name] = func;
+				console.log("addMethod方法");
+				return this;
+			}
+			
+			var Method = function(){};
+			Method.addMethod("getName", function(){
+				console.log("getName方法");
+				return this;
+			});//addMethod方法
+			
+			Method.addMethod("getAge", function(){
+				console.log("getAge方法");
+				return this;
+			});//addMethod方法
+			
+			
+			var  testfunc = new Method();
+			testfunc.getName().getAge(); //getName方法     getAge方法
+			*/
+			
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter25-迭代器模式</title>
+	</head>
+	<body>
+		
+		迭代器模式： 在不暴露对象内部结构的同时，可以顺序的访问聚合对象内部的元素。
+					适合解决重复循环迭代的问题。
+					
+		迭代器： 用来顺序的访问一个聚合对象内部的元素，简化遍历操作。
+		
+		<div id="container">
+			<li>1</li>
+			<li>2</li>
+			<li>3</li>
+			<li>4</li>
+			<li>5</li>
+		</div>
+		
+		
+		<script>
+			
+			//迭代器类
+			var Iterator = function(tagname, container){
+				var container = container && document.getElementById(container) || document, // 获取父容器
+				    items = container.getElementsByTagName(tagname), //获取元素
+				    length = items.length, //元素长度
+				    index = 0; //当前索引值，默认0
+				var splice = [].splice;
+				
+				
+				return {
+					first: function(){ //获取第一个元素
+						return items[0];
+					},
+					last: function(){ //获取最后一个元素
+						index = length-1;
+						return items[index];
+					},
+					
+					pre: function(){ // 获取上一个元素
+						if(--index >= 0){							
+							return items[index];
+						} else {
+							index =0 ;
+							return null;
+						}
+					},
+					
+					next: function(){
+						if(++index < length){
+							return items[index];
+						} else {
+							index = length-1;
+							return null;
+						}
+					},
+					
+					
+					get: function(num){
+						//num 大于等于0再获取正向获取， 否则逆向获取。
+						index = num >= 0 ? num%length  :  num%length + length;
+						return items[index];
+					},
+					
+					dealEach: function(fn){						
+						//从第二个参数开始的所有参数提取出来作为回调函数中的参数。
+						//对捕获到的每一个元素都执行一遍该fn回调。
+						args = splice.call(arguments,1);						
+						for(var i=0;  i<length;  i++){
+							fn.apply(items[i], args);
+						}						
+					},
+					
+					//对某一元素执行某一指定方法
+					dealItem: function(num,fn){
+						fn.apply(this.get(num), splice.call(arguments,2) );
+					},
+					
+					//排它方式处理某一个元素					
+					exclusive: function(num, allFn, numFn){
+						//对所有元素执行回调函数
+						this.dealEach(allFn);
+						// 如果num类型为数组
+						if( Object.prototype.toString.call(num) === '[object Array]') {
+							//遍历num数组
+							for(var i=0,len=num.length; i<len; i++){
+								this.dealItem(num[i], numFn);
+							}
+						} else {
+							//处理第num个元素。
+							this.dealItem(num, numFn);
+						}
+					}
+					
+				}
+				
+			}
+			
+			
+			var demo = new Iterator('li','container');
+			
+			console.log(demo.first());
+			console.log(demo.last());
+			console.log(demo.pre());
+			console.log(demo.pre());
+			console.log(demo.get(200));
+			
+			//处理所有元素
+			demo.dealEach(function(text,color){
+				this.innerHTML = text;
+				this.style.background =  color;
+			},'测试文本','pink');
+			
+			//排他思想处理第3 、4个元素
+			demo.exclusive([2,3],function(){
+				this.innerHTML = '被排除的';
+				this.style.background =  'green';	
+				
+			}, function(){
+				this.innerHTML = '选中的';
+				this.style.background =  'red';	
+			});
+		
+		
+		
+			//自定义数组迭代器			
+			var eachArray = function(arr,fn) {
+				var i =0,
+				    len = arr.length;
+				for(; i<len; i++){
+					if(fn.call(arr[i],  i,  arr[i]) === false) {
+						break ;
+					}
+				}
+			}
+			
+			//对象迭代器
+			
+			var eachObject = function(obj, fn) {
+				for(var i in obj) {
+					if(fn.call(obj[i], i , obj[i])  === false) {
+						break;
+					}
+				}
+			}
+		
+		
+			//试用迭代器
+			var obj  = {
+				a: 23,
+				b: 56,
+				c: 67
+			};
+			
+			eachObject(obj, function(key, value){
+				console.log("key---->" + key + ",  value---->" + value);
+			});
+			
+			
+			//
+			var A = {
+				common: {},
+				client: {
+					user: {
+						username: '雨夜清河',
+						uid: '123'
+					}
+				},
+				server: {}
+			}
+			
+			
+			AGetter = function(key) {
+				if(!A) {
+					return undefined;
+				}
+				var  result = A;
+				key = key.split('.');
+				for(var i=0,len=key.length;  i<len; i++) {
+					if(result[key[i]] !== 'undefined') {  
+						result = result[key[i]];
+					} else {
+						return  undefined;
+					}
+				}				
+				return result;				
+			}
+			
+			
+			console.log(AGetter('client.user.username')); //雨夜清河
+//			console.log(AGetter('client.lang.local')); // undefined
+			
+			
+			
+			console.log(5 instanceof Object); //false
+			console.log("hahha" instanceof Object); //false
+			
+			
+			
+			//同步变量迭代赋值器
+		</script>
+	</body>
+</html>

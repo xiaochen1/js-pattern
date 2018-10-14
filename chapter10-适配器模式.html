@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>适配器模式</title>
+	</head>
+	<body>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<script>
+			var obj = {
+				name: '',
+				type: '',
+				title: ''
+			}
+			
+			
+			//参数适配
+			function doSomething(obj){
+				var _adatper = {
+					name: '默认名',
+					title: '默认title',
+					age: 10,
+					color: 'pink'
+				};
+				for(var i in _adatper){
+					_adatper[i] = obj[i] || _adatper[i];
+				}
+				// 适配完成，进行其他操作...
+			}
+			
+			
+			//数据适配			
+			var arr = ['js','book','前端编程语言'];
+			function arrToObjAdapter(arr){
+				return {
+					name: arr[0],
+					type: arr[1],
+					title: arr[2]
+				}
+			}
+			var adapterData = arrToObjAdapter(arr);
+			console.log(adapterData); 
+			// {name:"js",title:"前端编程语言,"type:"book"}
+		</script>
+	</body>
+</html>

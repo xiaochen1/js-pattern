@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter16-模板方法模式</title>
+		<style>
+			a {
+				display: inline-block;
+				position: relative;
+				width: 100px;
+				height: 30px;
+				line-height: 30px;
+				background: #aaa;
+				text-align: center;
+				margin-right: 20px;
+				text-decoration: none;
+				color: black;
+			}
+			a > b {
+				position: absolute;
+				z-index: 2;
+				top: -7px;
+				right: -7px;
+				width: 14px;
+				height: 14px;
+				line-height: 14px;
+				border-radius: 50%;
+				background: red;
+				font-size: 12px;
+				vertical-align: top;
+			}
+		</style>
+	</head>
+	<body>
+		实例： 提示框的归一化,统一样式。
+		内容： 基本的（左、右侧）确认、取消按钮，基本弹出框，含标题的弹出框，
+		
+		<div id="content">
+			
+		</div>
+		<script>
+			//创建模板的基本内容
+			var Alert = function(data) {
+				//data是Alert初始化数据对象。
+				if( !data ){ return ; }
+				this.content = data.content;
+				this.panel = document.createElement('div');
+				this.contentNode = document.createElement('p');
+				this.confirmBtn = document.createElement('span');
+				this.closeBtn = document.createElement('b');
+				
+				this.panel.className = 'alert';
+				this.confirmBtn.className = 'a-confirm';
+				this.closeBtn.className = 'a-close';
+				
+				this.confirmBtn.innerHTML = data.confirm  ||  "确认";
+				this.contentNode.innerHTML = this.content;
+				
+				//点击确认、关闭按钮后需要执行的方法。
+				this.success = data.success || function(){};
+				this.fail = data.fail || function(){};
+				
+			}
+			
+			//添加模板的通用方法，原型方法
+			Alert.prototype = {
+				init: function() {
+					//生成提示框
+					this.panel.appendChild(this.confirmBtn);
+					this.panel.appendChild(this.closeBtn);
+					this.panel.appendChild(this.contentNode);
+					//插入页面
+					document.body.appendChild(this.panel);
+					
+					//事件的绑定
+					this.bindEvent();
+					this.show();
+					
+				},
+				bindEvent: function() {
+					var me = this;
+					this.closeBtn.onclick = function() {
+						me.fail();
+						me.hide(); // 隐藏弹层
+					}
+					
+					this.confirmBtn.onclick = function() {
+						me.success();
+						me.hide(); // 隐藏弹层
+					}
+				},
+				
+				hide: function(){
+					this.panel.style.display = "none";
+				},
+				show: function(){
+					this.panel.style.display = "block";
+				}
+			}
+			
+			
+			//根据基本提示框，扩展其他类型的弹层；
+			//右边按钮提示框
+			var RightAlert = function(data) {
+					Alert.call(this,data);
+					this.confirmBtn.className = this.confirmBtn.className + '  right';			
+			}
+			//继承基本的提示框方法
+//			RightAlert.prototype = new Alert();
+			
+			
+			//标题提示框
+			var TitleAlert = function(data) {
+					Alert.call(this, data);
+					this.title = data.title;
+					this.titleNode = document.createElement('h3');
+					this.titleNode.innerHTML = this.title;
+			}
+			TitleAlert.prototype = new Alert(); // 继承基本提示框方法
+			TitleAlert.prototype.init = function() { //对基本提示框创建方法拓展
+				this.panel.insertBefore(this.titleNode,  this.panel.firstChild);
+				Alert.prototype.init.call(this);
+			}
+			
+			
+			//继承类也可作为模板类
+			//创建带有取消按钮的标题提示框
+			var CancelAlert = function(data) {
+				TitleAlert.call(this, data);
+				this.cancelBtn = document.createElement('span');
+				this.cancel = data.cancel;				
+				this.cancelBtn.className = 'cancel';
+				this.cancelBtn.innerHTML = this.cancel  || '取消';
+			}
+			
+			CancelAlert.prototype = new Alert();
+			
+			CancelAlert.prototype.init = function() {
+				TitleAlert.prototype.init.call(this);
+				this.panel.appendChild(this.cancelBtn);
+			}
+			
+			CancelAlert.prototype.bindEvent = function() {
+				var me = this;
+				TitleAlert.prototype.bindEvent.call(me);
+				this.cancelBtn.onclick = function() {
+					me.fail();
+					me.hide();
+				}
+			}
+			
+			
+			//创建一个提示框
+			new CancelAlert({
+				title: '提示标题',
+				content: '提示内容',
+				success: function(){
+					console.log('ok');
+				},
+				fail: function(){
+					console.log('cancel');
+				}
+			}).init();
+			
+			
+			//创建多类导航
+			//格式化字符串方法
+			function formateString(str,data) {
+				return str.replace(/\{#(\w+)#\}/g, function(match, key) {
+					console.log('match--->'+match +"; key--->"+key);
+					return typeof data[key] === 'undefined'? '' : data[key];
+				});
+			}
+			
+			//基础导航
+			var  Nav = function(data) {
+				//基础导航模板
+				this.item = '<a href="{#href#}" title="{#title#} ">{#name#}</a>';
+				this.html = '';
+				for(var i = 0,len = data.length; i<len; i++) {
+					this.html += formateString(this.item, data[i]);
+				}
+				
+				return this.html; //返回字符串数据
+			}
+			
+			//带有消息提醒信息导航
+			var NumNav = function(data) { 
+				var tpl = '<b>{#num#}</b>';
+				for(var i=data.length-1; i>=0; i--){
+					data[i].name = data[i].name + formateString(tpl, data[i]);
+					
+				}
+				return Nav.call(this, data);
+				
+			}
+			
+			var nav = document.getElementById('content');
+			nav.innerHTML = NumNav([
+				{
+					href: 'http://www.baidu.com',
+					title: '百度一下，你就知道',
+					name: '百度',
+					num: '10'
+				},
+				{
+					href: 'http://www.qq.com',
+					title: '腾讯',
+					name: '腾讯',
+					num: '2'
+				},
+				{
+					href: 'http://www.taobao.com',
+					title: '淘宝',
+					name: '淘宝',
+					num: '3'
+				}
+			]);
+			
+			//带有链接地址的导航
+			var LinkNav = function(data){
+				var tpl = '<span>{#link#}</span>'; //链接地址模板
+				for(var i=data.length-1; i>=0; i--){ //数据装饰
+					data[i].name += formateString(tpl,data[i]);
+				}
+				
+				return Nav.call(this, data); //继承基础导航类，返回字串
+				
+			}
+			
+			
+		</script>
+	</body>
+</html>

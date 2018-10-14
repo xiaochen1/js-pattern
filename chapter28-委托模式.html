@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter28-委托模式</title>
+	</head>
+	<body>
+		
+		为节点绑定事件时，若事件个数太多，则会增加内存的消耗；这时可以使用委托模式，即将
+		子元素的事件委托给跟高级的父类元素去绑定执行，这得益于事件捕获流、冒泡流。
+		
+		委托模式的另一个好处是为将来的元素绑定事件。以ul 下的li为例，如果将来添加了新的li,那么新的li同样
+		能完成事件的处理，因为事件处理绑定在了其父元素ul上。
+		
+		委托模式还能防止内存的泄漏。如果对某一节点绑定事件，并在该事件中删除该节点，但是却有保存了该节点的引用或事件处理；
+		那么那么该引用或者事件就会泄漏到内存中。虽然可以将该引用或者事件置null ,但是一些浏览器是不需要的，因为他们
+		采用的是标记清除方式管理自身内存。最好的方式是采用委托模式，将事件绑定到父元素上。
+		
+		委托模式还能用于数据分发，当一个页面中 的多个模块都需要向后台请求数据时，如果逐个去请求那是对资源
+		的浪费，最好的方式是委托给一个对象发送，当得到相应数据时，再通过委托对象拆包数据并分发给各个模块。
+		
+		
+		
+		
+		<ul id="container">
+			<li class="item">1</li>
+			<li class="item">2</li>
+			<li class="item">3</li>
+			<li class="item">4</li>
+			<li class="item">5</li>
+		</ul>
+		
+		
+		
+		
+		
+		<script>
+			var  ul = document.getElementById('container');
+			ul.onclick = function(e){
+				var e = e || window.event;
+				var tar = e.target || e.srcElement;
+				if(tar.nodeName.toLowerCase() == 'li'){
+					tar.style.backgroundColor = 'grey';
+				}
+				
+			}
+			
+			var  myli = document.createElement('li');
+			myli.innerText = "这是新添加的li ";
+			ul.appendChild(myli);
+			
+			
+			
+			/*
+			var Deal = {
+				banner: function(){
+					
+				},
+				aside: function(){
+					
+				},
+				member: function(){
+					
+				},
+				message: function(){
+					
+				}
+			};
+			
+			$.get('./deal.php', function(res){
+				for(var i in res){
+					Deal[i]  && Deal[i](res[i]);
+				}
+			});
+			*/
+		</script>
+	</body>
+</html>

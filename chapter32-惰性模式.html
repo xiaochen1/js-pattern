@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter32----惰性模式</title>
+	</head>
+	<body>
+		惰性模式： 减少每次代码执行时的重复性的分支判断。
+		应用场景： 在执行事件绑定时，要进行判断浏览器是IE还是非IE,这就需要进行条件判断，然后当事件绑定时每次
+		          都要去判断是多余的，因为都是在同一个浏览器中执行的，所以结果只能是其中一个，当第一次执行判断后就
+		          能知道是不是IE浏览器了，那么后续的事件绑定就不需要再去判断了。
+		实现： 惰性模式的精髓在于重新定义。实现方式有两种：（1）在文件加载时，通过执行闭包来进行重定义；这会在
+		页面加载时消耗资源（2）在函数第一次调用时重定义，这不会在加载时增加内存消耗，但是会增加执行时的资源消耗。
+		
+		
+		
+		
+		
+		<script>
+			// 加载时重定义
+			var A = {};
+			/*A.on = function(dom, type, fn) {
+				if(document.addEventListener) { // 非 IE
+					return function(dom,type,fn) {
+						dom.addEventListener(type, fn,  false);
+					}
+				} else if(document.attachEvent) {
+					return  function(dom, type, fn) {
+						dom.attachEvent('on'+ type, fn);
+					}
+				} else {
+					return function(dom, type, fn) {
+						dom['on' + type]= fn;
+					}
+				}
+			}() ;*/
+			
+			
+			// 执行时重定义			
+			A.on = function(dom, type, fn) {
+				if(dom.addEventListener) { // 非 IE
+					A.on = function(dom, type, fn) {
+						dom.addEventListener(type, fn,  false);
+					}
+				} else if(dom.attachEvent) {
+					A.on = function(dom, type, fn) {
+						dom.attachEvent('on'+ type, fn);
+					}
+				} else {
+					A.on = function(dom, type, fn) {
+						dom['on' + type]= fn;
+					}
+				}
+				
+				A.on(dom, type , fn);
+			};
+			
+			
+			A.on(document.body, 'click', function(){
+				alert(11);
+			});
+			
+			
+			
+			
+			
+		</script>
+	</body>
+</html>

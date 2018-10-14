@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter13-桥接模式</title>
+	</head>
+	<body>
+		
+		
+		<script type="text/javascript">
+			// 运动单元
+			function Speed(x,y){
+				this.x = x;
+				this.y = y;
+			}
+			Speed.prototype.run = function(){
+				console.log("运动起来");
+			}
+			// 着色单元
+			function Color(cl){
+				this.color = cl;
+			}
+			Color.prototype.draw = function(){
+				console.log("色彩绘制");
+			}
+			
+			//球
+			function Ball(x,y,color){
+				this.speed = new Speed(x,y); //运动单元
+				this.color = new Color(color); //着色单元
+			}
+			Ball.prototype.init = function(){
+				this.speed.run(); //实现运动
+				this.color.draw(); //实现着色
+			}
+			//说话单元
+			function Speek(wd){
+				this.word = wd;
+			}
+			Speek.prototype.say = function(){
+				console.log("书写字体");
+			}
+			
+			function People(x,y,f){
+				this.speed = new Speed(x,y);
+				this.font = new Speek(f);
+			}
+			People.prototype.init = function(){
+				this.speed.run();
+				this.font.say();
+			}			
+			var p = new People(10,12,16);
+			p.init();
+			
+		</script>
+	</body>
+</html>

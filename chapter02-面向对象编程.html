@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>面向对象编程</title>
+	</head>
+	<body>
+		<script>
+		/*
+			var Book = function(id,name,price){
+				var num = 5; //私有属性
+				this.name = name;
+				this.id = id;
+				this.price = price;
+				function bookfunc(){
+					alert('Book 私有方法');
+				}
+				
+				this.sayName = function(){
+					alert(this.name);
+				}
+			}
+			
+			Book.prototype = {
+				sayName: function (){alert('原型中的sayName方法');},
+				sayAge: function(){alert('我的age');}
+			}
+			
+			var book1 = new  Book(1,'javascript设计模式','30元');
+			book1.sayName(); // javascript设计模式
+			book1.sayAge();  // 我的age
+			alert(book1.num); //undefined
+			
+		*/
+			//闭包内部实现类并将该类返回
+			/*
+			var Book = (function(){
+				var booknum = 0;
+				var tmp ="私有变量";
+				function checkBook(){};
+				function priviFunc(){console.log(tmp);}				
+				function _book(newid,newname,newprice){
+					var name,price; 					
+					function checkID(ID){};
+					
+					this.getName = function(){} ;
+					this.getPrice = function(){} ;
+					this.setName = function(){this.name=name} ;
+					this.setPrice = function(){this.price=price} ;					
+					this.id = newid;
+					this.copy = function(){};
+					booknum++;
+					if(booknum>100){
+						throw new Error('我们仅出版100本书');
+					}
+					this.setName(name);
+					this.setPrice(price);
+				};
+				
+				//构建原型
+				_book.prototype = {
+					isJSBook: false,
+					display: function(){}
+				};
+				return _book;
+			})();
+			var book1 = new Book('1','xiao',30);
+			console.log(book1.id); // 1
+			console.log(book1.checkID); //undefined
+			console.log(Book.booknum);   //undefined
+			console.log(Book.priviFunc());  //Book.priviFunc is not a function
+			
+		*/
+		
+		/*
+			var Book = function(name){
+				this.name=name;
+			};	
+			var book1 = new Book();
+			for(var key in Book){
+				console.log(1); //空 ，不会打印1
+				console.log(key,typeof key); //空
+			}
+			console.log(Book.prototype); //Object{}
+			Book.prototype = Function.prototype;
+			console.log(Function.prototype); // function(){}
+			console.log(Book.prototype); // function(){}
+			for(var key in Book){
+				console.log(1); // 空，不会打印1
+				console.log(key,typeof key); //空
+			}
+			Book.prototype.display = function(){
+				alert('display');
+			};
+			for(var key in Book){
+				console.log('Book的属性'+key,';  '+key+'属性类型为'+typeof key); 
+				//Book的属性display ;  display属性类型为string
+			}
+			for(var key in Function){
+				console.log('Function的属性'+key,';  '+key+'属性类型为'+typeof key); 
+			   //Book的属性display ;  display属性类型为string
+			}
+			var book = new Book();
+			for(var key in book){
+				console.log('book的属性'+key,';  '+key+'属性类型为'+typeof key); 
+				//book的属性display ;  display属性类型为string
+			}
+			var  Person = function(){};				
+			Person.display(); // 此时会执行alert('display');
+		*/
+		/*	//封装
+			var  Book = function(name){
+				var id = 'sn1234'; // 私有变量，
+				this.name = name; // 
+			};
+			Book.prototype.getName=function(){
+				return this.name;
+			}
+			console.log(Book.id); // undefined,
+			//Book.id为undefined,是由于私有变量无法再外部被访问到，即便执行了该Book函数后，也无法通过.操作符来获取，
+			//因为函数内部的变量是运行时存在的，函数运行结束后内部的私有变量就被销毁了
+			Book('书的名字');
+			console.log(window.id); // undefined
+			console.log(window.name); // 书的名字，Book('书的名字');函数运行时会将this.name中的this绑定到
+			//该函数运行的上下文中，此处是window，  故相当于window.name = name;
+			
+			var book1 = new Book('js设计模式'); // new操作创建了一个对象，并返回该对象赋给了book1
+			console.log(book1.getName()); // js设计模式，  getName是同原型链继承而得到的，并不是Book对象本身的的属性。
+			console.log(book1.id); // undefined
+			console.log(Book.id); // undefined
+			
+			
+			var book2 = Book('book2的名字'); // 直接运行Book（）函数并不会创建一个新对象
+			console.log(book2); // undefined
+			console.log(window.name); // book2的名字， 
+			console.log(book1.getName()); // js设计模式
+		*/
+		/*
+			var Book = (function(id,name){
+				var bookNum = 10;
+				function _book(newid,newname){
+					this.id = newid;
+					this.newname = newname;
+					this.getName = function(){return this.name};
+					function checkId(id){}
+					
+				}
+				_book.prototype = {
+					isJSBook : false,
+					display : function(){
+						console.log('我是原型的display属性');
+						console.log(bookNum);
+					}
+				};
+				return _book;
+			})(); // 闭包内实现一个完整类，并将其返回
+			var book1 = new Book('1','小明');
+			console.log(book1);
+			book1.display(); // 我是原型的display属性   10
+		*/
+		/*
+			function Add(){
+				function zero(){return 10;}
+				function one(num){return 10+num;}
+				function two(num1,num2){return num1+num2;}
+
+				this.add = function(){
+					var argLen = arguments.length;
+					switch(argLen){
+						case 0:
+							return zero();
+						case 1:
+						 	return one(arguments[0]);
+						case 2:
+							return two(arguments[0],arguments[1]);
+					}					
+				}				
+			}
+			var A = new Add();
+			console.log(A.add()); // 10
+			console.log(A.add(3));  // 13
+			console.log(A.add(3,4)); // 7
+		*/
+			//单继承, 对象中属性的复制，从parent对象复制到son对象
+		/*
+			var extend = function(son,parent){
+				for(var tmpattr in parent){
+					son[tmpattr] = parent[tmpattr];
+				}
+				return son;
+			};
+			var book = {
+				price : 30
+			};
+			var anotherbook = {
+				color: 'blue'
+			};
+			extend(anotherbook,book);
+			console.log(anotherbook.price); // 30
+		*/
+		    //多继承,此处的extend方法只是实现了浅复制，并未实现深复制，复制的属性只是一个指针而已
+		    /*浅复制
+				function extend(){
+					if(arguments.length<1){return ;}
+					var son = arguments[0]; // 第一个参数是需要继承的对象
+					//从第二个参数开始是被继承的对象
+					var par = arguments[1];
+					for(var i=1;  i<arguments.length;  i++){
+					  par = arguments[i];
+						for(var tmpattr in par ){
+							son[tmpattr] = par[tmpattr];
+						}
+					}
+					return son;
+				}
+				
+				var obj = {price: 10},
+						obj1 =  {color: 'blue',alike: ['java','php']},
+						obj2 = {pages: 300};
+				console.log(obj.alike); // undefined
+				extend(obj,obj1,obj2); 
+				console.log(obj);
+				//Object {price: 10, color: "blue", alike: Array[2], pages: 300}
+				obj.alike.push('c++');
+				console.log(obj.alike);  // ["java", "php", "c++"]
+				console.log(obj1.alike); // ["java", "php", "c++"]
+				
+				console.log(obj.hasOwnProperty('alike')); // true
+		*/
+		
+//			console.log(obj);
+//			console.log(obj1);
+
+		/*
+			console.log({}+{}); // [object Object][object Object]
+			console.log(typeof ({}+{})); // string
+			console.log(({}+{}).length); // 30
+		*/
+	/*
+		var Person = function(name){
+			var hobby = '打球';
+			this.name = name;
+			function check(){console.log('check');}
+			this.say = function(){
+				console.log(hobby);
+			};
+		};
+		Person.outVar = '类外部定义的变量';
+		Person.outFunc = function(){console.log('类外部定义的方法');}
+		var person = new Person('小明');
+		person.say(); //  打球; 特权方法可访问到私有变量
+//		person.check(); // person.check is not a function; 私有方法无法被外部访问	
+		console.log(person.outVar); // undefined
+//		person.outFunc(); // person.outFunc is not a function
+		console.log(Person.outVar); // 类外部定义的变量
+		Person.outFunc(); // 类外部定义的方法
+		console.log(person.name); // 小明,通过this创建的属性可被外部访问
+		console.log(person.hobby); // undefined; 私有属性无法被外部访问
+		console.log(person.hasOwnProperty('hobby')); // false
+		console.log(person.hasOwnProperty('name')); // true
+	*/
+	/*  // 闭包创建静态变量
+		var Book = (function(){
+			var bookNum = 0; // 静态私有变量
+			function _book(bookId,bookName,bookPrice){
+				var name,price;			//  私有变量
+				this.id = bookId; // 共有变量
+				this.price = bookPrice;
+				this.bookname = bookName;
+				this.getId = function(id){ // 特权方法
+				  return this.id;
+				};
+				this.getName = function(name){
+					return this.bookname;
+				};
+				this.getPrice = function(price){
+					return this.price;
+				};				
+			};
+			_book.prototype = {
+				isJSBook : true,
+				display: function(){console.log('hello');}
+			};
+			return _book;			
+		})();
+		var book1 = new Book('001','js设计模式',30);
+		console.log(book1.id,  book1.bookname,  book1.price); // 001 js设计模式 30
+		console.log(book1.isJSBook); // true
+		console.log(book1.bookNum); // undefined
+	*/
+	//  类式继承
+	/*
+			function Person(){}			
+			function Parent(){
+				this.pmsg = '父类的msg';	
+			}
+			Parent.prototype = new Person;
+			Parent.prototype.getPMsg = function(){
+				return this.pmsg ;
+			}
+			function Son(){
+				this.smsg = '子类的msg';
+			}
+			Son.prototype = new Parent();
+			Son.prototype.getSMsg = function(){
+				return this.smsg ;
+			}
+			var son1 =  new Son();
+			console.log(son1.getPMsg()); // 父类的msg
+			console.log(son1.getSMsg()); // 子类的msg
+			console.log(son1 instanceof Person); // true
+			console.log(son1 instanceof Parent); // true
+			console.log(son1 instanceof Son); // true
+			console.log(Son instanceof Parent); // false
+			console.log(Son.prototype instanceof Parent); // true
+	*/
+		
+		</script>
+	</body>
+</html>

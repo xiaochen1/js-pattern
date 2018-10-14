@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>chapter24-备忘录模式</title>
+		<script src="js/jquery-1.12.0.js"></script>
+	</head>
+	<body>
+		应用场景：    以点击上 一页、下一页为例，如果点击了下一页后要回到上一页，如果这次又发生一次请求，
+					那么则显得多余了； 
+		备忘录模式： 将已请求的数据缓存下来。每次发送请求时对当前的状态做一次记录，将请求下的数据以及对应的页码
+					缓存下来，如果将来的某一时刻想返回到某一个浏览过的新闻页，直接在缓存中查询即可。
+					直接恢复记录过的状态而不必触发新的请求行为, 更高效。
+					
+					
+					
+		<div id="next_page">下一页</div>
+		
+		<script>
+			//下一页按钮点击事件
+			$('#next_page').click(function(){
+				var $news = $('#news_content');
+				var page = $news.data('page');
+				getPageData(page, function(){
+					$news.data('page', page+1);
+				});
+			});
+			
+			$('#pre_page').click(function(){
+				//显示上一页
+			});
+			
+			function getPageData(page, fn){
+				$.post('./data/getNewsData.php', {
+					page: page
+				},function(res){
+					if(res.errNo == 0){
+						showPage(page, res.data);
+						fn && fn();
+					}
+				});
+			}
+			
+			
+			function showPage(page, data){
+				//...
+			}
+			
+			
+			//缓存数据Page备忘录类
+			var Page = function() {
+				var cache = {} ; //缓存对象
+				console.log("pageeeeeeeeeeeeeeee");
+				return function(page,  fn) {
+					console.log("Page return function");
+					if(cache[page]) {
+						showPage(page, cache[page]);
+						fn && fn();
+					} else {
+						$.post('./post/getNewsData.php', {
+							page: page  //请求携带数据page页码
+						}, function(res) {
+							if(res.errNo == 0) {
+								showPage(page, res.data);
+								cache[page] = res.data;
+								fn && fn();
+							} else {
+								//处理异常
+							}
+						});
+					}
+					
+				}
+			}
+			
+			//下一页按钮点击事件
+			$('#next_page').click(function() {
+				var $news = $("#news_content"), //获取新闻内容元素
+				    page = $news.data('page'); // 获取新闻内容元素当前页数据
+				Page()(page, function() { //获取并显示新闻
+					$news.data('page', page+1);
+				});
+			});
+			
+		</script>
+	</body>
+</html>
