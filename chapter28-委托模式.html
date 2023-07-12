@@ -19,20 +19,27 @@
 		委托模式还能用于数据分发，当一个页面中 的多个模块都需要向后台请求数据时，如果逐个去请求那是对资源
 		的浪费，最好的方式是委托给一个对象发送，当得到相应数据时，再通过委托对象拆包数据并分发给各个模块。
 		
+
+		<div id="btn_container">
+			<button id="btn">内存泄露</button>
+		</div>
+		
+		<script>
+			function g(id) {
+				return document.getElementById(id)
+			}
+			g("btn").onclick = function() {
+				g('btn_contaienr').innerHTML = '清除内容'
+			}
+		</script>
+		
 		
 		
 		
 		<ul id="container">
 			<li class="item">1</li>
 			<li class="item">2</li>
-			<li class="item">3</li>
-			<li class="item">4</li>
-			<li class="item">5</li>
 		</ul>
-		
-		
-		
-		
 		
 		<script>
 			var  ul = document.getElementById('container');
@@ -42,17 +49,15 @@
 				if(tar.nodeName.toLowerCase() == 'li'){
 					tar.style.backgroundColor = 'grey';
 				}
-				
 			}
-			
 			var  myli = document.createElement('li');
 			myli.innerText = "这是新添加的li ";
 			ul.appendChild(myli);
-			
-			
-			
+		</script>
+
+		<script>
 			/*
-			var Deal = {
+			var Deal = {w
 				banner: function(){
 					
 				},

@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>观察者模式</title>
-	</head>
-	<body>
-		观察者模式：  也叫 发布-订阅者模式； 定义了一种依赖关系，解决了主体对象和 观察者之间的功能耦合
-		
-		以卫星-飞机为例，卫星作为观察者， 飞机作为主体，他们之间通过消息来沟通。
-		所以，一个基础的观察者对象，需要的是： 
-			（1）保存消息的容器  （2）三个和消息相关的方法（订阅、取消、发送）。
-			
-			
-		
-		
-		
-		
-		<script>
+
+<head>
+	<meta charset="UTF-8">
+	<title>观察者模式(发布-订阅模式)</title>
+</head>
+
+<body>
+	观察者模式： 也叫 发布-订阅者模式； 定义了一种依赖关系，解决了主体对象和 观察者之间的功能耦合
+
+	以卫星-飞机为例，卫星作为观察者， 飞机作为主体，他们之间通过消息来沟通。
+	所以，一个基础的观察者对象，需要的是：
+	（1）保存消息的容器 （2）三个和消息相关的方法（订阅、取消、发送）。
+
+
+
+
+
+
+	<script>
+		/*
 			var Observer = (function(){
 				//防止消息队列暴露被篡改而将消息容器作为静态私有变量保存。
 				var _message = {};
 				return {
 					//注册消息接口，将订阅者注册的消息推入消息队列中。
 					regist: function(type, fn){
-						//如果没有此消息类型，则添加到消息队列中； 如果有，则添加到对应类型的执行序列中
+						// 如果没有此消息类型，则添加到消息队列中； 
+						// 如果有，则添加到对应类型的执行序列中
 						if(typeof _message[type] === 'undefined'){
 							_message[type] = [fn];
 							//同一类型可有多个执行，故此处添加到数组中
@@ -48,9 +52,7 @@
 						for(; i< len; i++){
 							_message[type][i].call(this, events);
 						}
-						
 					},
-					
 					
 					//移除信息接口，将订阅者注销的消息从消息队列中删除。
 					remove: function(type, fn){
@@ -63,20 +65,61 @@
 						}
 					}
 				}
-				
 			})();
 			
 			
 			Observer.regist('test', function(e){
 				console.log(e.type,  e.args.msg);
 			});
-			
-			Observer.fire('test',{msg: '传递参数'});
-			
-			
-			var myarr = [1,2,3,4,5];
-			console.log(myarr.splice(2,2));  //[3, 4]
-			console.log(myarr);  // [1, 2, 5]
-		</script>
-	</body>
+			Observer.fire('test',{msg: '传递参数'}); 
+			*/
+
+		var Observer = (function () {
+			var _message = {}; // {type1: [], type2: []}
+			return {
+				register(type, fn) {
+					console.log('register: '  + type)
+					if (typeof _message[type] === 'undefined') {
+						_message[type] = [fn]
+					} else {
+						_message[type].push(fn)
+					}
+				},
+				emit(type, args) {
+					console.log('emit: '  + type)
+					if (!_message[type]) {
+						return ;
+					} else {
+						var i=0, length = _message[type].length;
+						for(; i<length; i++) {
+							_message[type][i].call(this, {type: type, args: args || {} })
+						}
+					}
+				},
+				remove(type, fn) {
+					console.log('remove: '  + type)
+					if (_message[type] instanceof Array ) {
+						var i = _message[type].length -1;
+						for(; i>=0; i--) {
+							_message[type][i] === fn && _message[type].splice(i,  1)
+						}
+					}
+				}
+			}
+		})()
+
+		function f1() {console.log('input1')}
+		function f2() {console.log('input2')}
+		Observer.register('change', f1)
+		Observer.register('change', f2)
+		Observer.emit('change')
+		Observer.remove('change', f1)
+		Observer.emit('change')
+		Observer.remove('change', f2)
+		Observer.emit('change')
+
+
+	</script>
+</body>
+
 </html>

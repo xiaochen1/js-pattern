@@ -1,11 +1,162 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>面向对象编程</title>
-	</head>
-	<body>
-		<script>
+
+<head>
+	<meta charset="UTF-8">
+	<title>面向对象编程</title>
+	<style>
+		div {
+			width: 400px;
+			height: 400px;
+			background-color: blue ;
+			transform: translateZ(100px);
+		}
+	</style>
+</head>
+
+<body>
+	<video src="" width="300" height="300"></video>
+	<script>
+
+		// function F() {}
+		// var f1 = new F();
+		// var proto = f1.__proto__;
+		// console.log(proto.constructor === F) // true
+		// console.log(f1.constructor === F) // true
+		// console.log(f1.constructor === f1.__proto__.constructor) // true
+
+		//--------------------------------------------------------------------------------------------------------------
+		// 类式继承： 子类的原型是父类的实例对象--------------------------------------------------------------------------------------------------------------
+		// function A() {}
+    // function B() {
+    //   this.list = ["apple","orange", "pear"]
+    //   this.age = 10
+    // }
+    // A.prototype = new B();
+    // var a1 = new A();
+    // var a2 = new A();
+    // a1.list[0] = "some"
+    // a1.age = 20
+    // console.log(a2.list[0]) //  some （变了）
+    // console.log(a2.age)     //  10    (不变)
+
+		//--------------------------------------------------------------------------------------------------------------
+		// 构造函数式继承：  子类的构造函数中执行父类的构造函数。
+
+		// function A() {
+		// 	B.call(this, ...arguments) // 1、子类的构造函数中调用父类的构造函数
+		// }
+		// function B() {
+		// 	this.list = ["apple","orange", "pear"]
+		// }
+		// B.prototype.say = "say";
+		// var a1 = new A();
+		// console.log(a1) // {"list":["apple","orange","pear"],"age":10}
+		// console.log(a1.say) // undefined,  没有从B.prototype上继承到say属性
+		//--------------------------------------------------------------------------------------------------------------
+
+
+		// var book = {list: ["apple","orange", "pear"], age: 10}
+		// var b1 = inheritObj(book)
+		// var b2 = inheritObj(book)
+		// b1.list[0] = "something"
+		// b1.age = 20
+		// console.log(b2.list[0]) // something
+		// console.log(b2.age)     // 10
+
+		//--------------------------------------------------------------------------------------------------------------
+		// 组合继承： （1）子类的原型是父类的实例对象  （2）在子类的构造函数中执行父类的构造函数
+		// function A() {
+		// 	B.call(this, ...arguments) // 1、调用父类的构造函数
+		// 	this.xxx = "xxx"; // 自有属性。
+		// }
+		// function B() {
+		// 	this.list = ["apple","orange", "pear"]
+		// 	this.say = "say"
+		// }
+		// A.prototype = new B(); // 2、父类的实例作为子类的原型对象
+		// var a1 = new A();
+		// var a2 = new A();
+		// a1.list[0] = "some"
+		// a1.say = "saysomething"
+		
+		// console.log(a2.list[0]) // apple  （引用类型变量， 【变了】）
+		// console.log(a2.say)     // say    （普通类型变量， 【不变】）
+		//--------------------------------------------------------------------------------------------------------------
+		// 寄生式继承： 通过中间函数F , F.prototype = obj; return  new F()来完成对obj对象的属性继承。
+		// 类似于类式继承， 也有类式继承的问题。
+		// function inheritObj(obj) {
+		// 	function F() {}
+		// 	F.prototype = obj;
+		// 	return new F()
+		// }
+		// var book = {list: ["apple","orange", "pear"], age: 10}
+		// var obj = inheritObj(book)
+		// console.log(obj.__proto__ === book) // true 
+
+		//--------------------------------------------------------------------------------------------------------------
+		// 组合式继承： 对寄生式继承的二次封装， 对返回的实例拓展后再返回。
+		// function inheritObj(obj) {
+		// 	function F() {}
+		// 	F.prototype = obj;
+		// 	return new F();
+		// }
+
+		// function createBook(book) {
+		// 	var o = inheritObj(book) // 通过原型式继承创建新对象
+		// 	o.say = "say";  // 拓展新对象
+		// 	return o;
+		// }
+
+		// var book = {list: ["apple","orange", "pear"], age: 10}
+		// var b1 = createBook(book)
+		// var b2 = createBook(book)
+		// b1.list[0] = "something"
+		// b1.age = 20
+		// console.log(b2.list[0]) // something  （引用类型变量， 【变了】）
+		// console.log(b2.age)     // 10         （普通类型变量， 【不变】）
+		// console.log(b2.say)     // say
+
+
+
+
+		//--------------------------------------------------------------------------------------------------------------
+		// 寄生组合式继承
+
+		function inheritObj(obj) {
+			function F() {}
+			F.prototype = obj;
+			return new F();
+		}
+
+		function inheritProto(son, parent) {
+			var p = inheritObj(parent.prototype);
+			// console.log( p.__proto__ === parent.prototype ) // true
+			// console.log( p.constructor === parent ) // true
+			p.constructor = son; // 修正因为重写子类原型而导致的子类的constructor属性被修改问题
+			son.prototype = p;   // 设置子类的原型
+		}
+
+		function A() {
+			this.a = 'a'
+			B.call(this)
+		}
+		A.prototype.sayA = "sayA"
+
+
+		function B() {
+			this.b = 'b'
+		}
+		B.prototype.sayB = "sayB"
+
+
+		inheritProto(A, B)
+
+		var a1 = new A();
+		console.log(a1.a) // a
+		console.log(a1.b) // undefined
+
+
 		/*
 			var Book = function(id,name,price){
 				var num = 5; //私有属性
@@ -32,8 +183,8 @@
 			alert(book1.num); //undefined
 			
 		*/
-			//闭包内部实现类并将该类返回
-			/*
+		//闭包内部实现类并将该类返回 --------------------------------------------------------------------------------------------------------------
+		/*
 			var Book = (function(){
 				var booknum = 0;
 				var tmp ="私有变量";
@@ -71,7 +222,7 @@
 			console.log(Book.priviFunc());  //Book.priviFunc is not a function
 			
 		*/
-		
+
 		/*
 			var Book = function(name){
 				this.name=name;
@@ -108,7 +259,7 @@
 			var  Person = function(){};				
 			Person.display(); // 此时会执行alert('display');
 		*/
-		/*	//封装
+		/*	//封装  --------------------------------------------------------------------------------------------------------------
 			var  Book = function(name){
 				var id = 'sn1234'; // 私有变量，
 				this.name = name; // 
@@ -181,62 +332,14 @@
 			console.log(A.add(3));  // 13
 			console.log(A.add(3,4)); // 7
 		*/
-			//单继承, 对象中属性的复制，从parent对象复制到son对象
-		/*
-			var extend = function(son,parent){
-				for(var tmpattr in parent){
-					son[tmpattr] = parent[tmpattr];
-				}
-				return son;
-			};
-			var book = {
-				price : 30
-			};
-			var anotherbook = {
-				color: 'blue'
-			};
-			extend(anotherbook,book);
-			console.log(anotherbook.price); // 30
-		*/
-		    //多继承,此处的extend方法只是实现了浅复制，并未实现深复制，复制的属性只是一个指针而已
-		    /*浅复制
-				function extend(){
-					if(arguments.length<1){return ;}
-					var son = arguments[0]; // 第一个参数是需要继承的对象
-					//从第二个参数开始是被继承的对象
-					var par = arguments[1];
-					for(var i=1;  i<arguments.length;  i++){
-					  par = arguments[i];
-						for(var tmpattr in par ){
-							son[tmpattr] = par[tmpattr];
-						}
-					}
-					return son;
-				}
-				
-				var obj = {price: 10},
-						obj1 =  {color: 'blue',alike: ['java','php']},
-						obj2 = {pages: 300};
-				console.log(obj.alike); // undefined
-				extend(obj,obj1,obj2); 
-				console.log(obj);
-				//Object {price: 10, color: "blue", alike: Array[2], pages: 300}
-				obj.alike.push('c++');
-				console.log(obj.alike);  // ["java", "php", "c++"]
-				console.log(obj1.alike); // ["java", "php", "c++"]
-				
-				console.log(obj.hasOwnProperty('alike')); // true
-		*/
-		
-//			console.log(obj);
-//			console.log(obj1);
+
 
 		/*
 			console.log({}+{}); // [object Object][object Object]
 			console.log(typeof ({}+{})); // string
 			console.log(({}+{}).length); // 30
 		*/
-	/*
+		/*
 		var Person = function(name){
 			var hobby = '打球';
 			this.name = name;
@@ -259,62 +362,250 @@
 		console.log(person.hasOwnProperty('hobby')); // false
 		console.log(person.hasOwnProperty('name')); // true
 	*/
-	/*  // 闭包创建静态变量
-		var Book = (function(){
-			var bookNum = 0; // 静态私有变量
-			function _book(bookId,bookName,bookPrice){
-				var name,price;			//  私有变量
-				this.id = bookId; // 共有变量
-				this.price = bookPrice;
-				this.bookname = bookName;
-				this.getId = function(id){ // 特权方法
-				  return this.id;
+		/*  // 闭包创建静态变量 --------------------------------------------------------------------------------------------------------------
+			var Book = (function(){
+				var bookNum = 0; // 静态私有变量
+				function _book(bookId,bookName,bookPrice){
+					var name,price;			//  私有变量
+					this.id = bookId; // 共有变量
+					this.price = bookPrice;
+					this.bookname = bookName;
+					this.getId = function(id){ // 特权方法
+					  return this.id;
+					};
+					this.getName = function(name){
+						return this.bookname;
+					};
+					this.getPrice = function(price){
+						return this.price;
+					};				
 				};
-				this.getName = function(name){
-					return this.bookname;
+				_book.prototype = {
+					isJSBook : true,
+					display: function(){console.log('hello');}
 				};
-				this.getPrice = function(price){
-					return this.price;
-				};				
+				return _book;			
+			})();
+			var book1 = new Book('001','js设计模式',30);
+			console.log(book1.id,  book1.bookname,  book1.price); // 001 js设计模式 30
+			console.log(book1.isJSBook); // true
+			console.log(book1.bookNum); // undefined
+		*/
+		//  类式继承 --------------------------------------------------------------------------------------------------------------
+		/*
+				function Person(){}			
+				function Parent(){
+					this.pmsg = '父类的msg';	
+				}
+				Parent.prototype = new Person;
+				Parent.prototype.getPMsg = function(){
+					return this.pmsg ;
+				}
+				function Son(){
+					this.smsg = '子类的msg';
+				}
+				Son.prototype = new Parent();
+				Son.prototype.getSMsg = function(){
+					return this.smsg ;
+				}
+				var son1 =  new Son();
+				console.log(son1.getPMsg()); // 父类的msg
+				console.log(son1.getSMsg()); // 子类的msg
+				console.log(son1 instanceof Person); // true
+				console.log(son1 instanceof Parent); // true
+				console.log(son1 instanceof Son); // true
+				console.log(Son instanceof Parent); // false
+				console.log(Son.prototype instanceof Parent); // true
+		*/
+		// 类式继承 --------------------------------------------------------------------------------------------------------------
+		/*
+		function SuperClass() {
+			this.name = '父类';
+			this.books = ['javascript', 'html', 'css']
+			this.changeName = function(name) {
+				this.name = name
+			}
+		}
+		function SubClass(){}
+		SubClass.prototype = new SuperClass()
+		var ins1 = new SubClass()
+		var ins2 = new SubClass()
+		console.log(ins1.name) // 父类
+		console.log(ins2.name) // 父类
+		ins1.changeName('ins1'); // 等同于 ins1.name = 'ins1'
+		ins1.books.push('设计模式')
+		console.log(ins1.name) // ins1
+		console.log(ins2.name) // 父类
+		console.log(ins1.books) // ["javascript", "html", "css", "设计模式"]
+		console.log(ins2.books) // ["javascript", "html", "css", "设计模式"]
+		console.log(ins1) 
+		console.log(ins2) 
+		*/
+
+
+		// 原型式继承 --------------------------------------------------------------------------------------------------------------
+		// 通过中间函数的原型为要继承的对象来完成继承，最终返回中间函数的实例对象。
+		/*
+		function inheritObj(obj) {
+			function F() {}
+			F.prototype = obj;
+			return new F();
+		}
+		*/
+		// 寄生式继承 --------------------------------------------------------------------------------------------------------------
+		// 在原型式继承的基础加以二次封装，对返回的实例对象进行扩展（属性、方法）
+		/*
+		function inheritObj(obj) {
+			function F() {}
+			F.prototype = obj;
+			return new F();
+		}
+
+		function createBook(obj) {
+			let test =  inheritObj(obj)
+			test.getName = function(){
+				console.log(this.name)
+			} 
+			return test
+		}
+		*/
+		/*
+		function F() {}
+		let p1 = new F()
+
+		console.log(F.prototype) // 含有 constructor（为 F ） 和 __proto__属性的一个对象
+		console.log(F.constructor) // 
+		console.log(F.prototype.constructor === F) // true
+		console.log(F.__proto__) // 
+
+		console.log('-------------------------') 
+		console.log(F  instanceof Function)   // true
+		console.log(F  instanceof Object)   // true
+		console.log('-------------------------') 
+
+		console.log(F.prototype === Function) // false
+		console.log(F.prototype === Object)   // false
+		console.log(F.prototype instanceof Function)   // false
+		console.log(F.prototype instanceof Object)   // true
+		console.log('-------------------------') 
+
+		console.log(F.prototype.constructor === F) // true
+		console.log(F.prototype.__proto__ === Object) // false
+		console.log(F.prototype.__proto__ === Object.__proto__) // false
+
+		console.log(F.prototype.__proto__ === Function) // false
+		console.log(F.prototype.__proto__ === Function.prototype) // false
+		console.log(F.prototype.__proto__ === Function.__proto__) // false
+
+		console.log('-------------------------') 
+		console.log(p1.prototype) // undefined , p1是对象， 对象无prototype,但是有__proto__,  prototype 是函数独有的属性
+		console.log(p1.__proto__) // 含有 constructor（为 F ） 和 __proto__属性的一个对象
+		console.log(p1.__proto__ === F.prototype) // true
+		console.log(p1.constructor) //	function F() {}
+		console.log(p1.constructor === F) // true
+
+		console.log(p1.__proto__ instanceof Function) // false
+		console.log(p1.__proto__ instanceof Object) // true
+
+		console.log(p1.__proto__.__proto__)  // 
+		console.log(p1.__proto__.__proto__ === Object)  // false
+		console.log(p1.__proto__.__proto__ === Function)  // false
+		console.log(p1.__proto__.__proto__ instanceof Function)  // false
+		console.log(p1.__proto__.__proto__ instanceof Object) // false
+
+		*/
+
+		// 寄生组合式继承 = 寄生式继承 + 构造函数式继承 --------------------------------------------------------------------------------------------------------------
+		/*
+		function inheritObj(obj) {
+			function F() {}
+			F.prototype = obj;
+			return new F()
+		}
+
+		function inheritPrototype(SubClass, SuperClass) {
+			var p = inheritObj(SuperClass.prototype)
+			p.constructor = SubClass
+			SubClass.prototype = p;
+		}
+
+		function SuperClass(name) {
+			this.name = name;
+			this.colors = ['red', 'green', 'blue']
+		}
+		SuperClass.prototype.getName = function () {
+			console.log(this.name)
+		}
+
+		function SubClass(name, time) {
+			SuperClass.call(this, name)
+			this.time = time
+		}
+
+		inheritPrototype(SubClass, SuperClass)
+		SubClass.prototype.getTime = function () {
+			console.log(this.time)
+		}
+
+
+		var ins1 = new SubClass('js book', 2014)
+		var ins2 = new SubClass('css book', 2013)
+		ins1.colors.push('black')
+		console.log(ins1.colors) // ["red", "green", "blue", "black"]
+		console.log(ins2.colors) // "red", "green", "blue"]
+		ins2.getName() // css book
+		ins2.getTime() // 2013
+		*/
+
+		//单继承, 对象中属性的复制，从parent对象复制到son对象 --------------------------------------------------------------------------------------------------------------
+		/*
+			var extend = function(son,parent){
+				for(var tmpattr in parent){
+					son[tmpattr] = parent[tmpattr];
+				}
+				return son;
 			};
-			_book.prototype = {
-				isJSBook : true,
-				display: function(){console.log('hello');}
+			var book = {
+				price : 30
 			};
-			return _book;			
-		})();
-		var book1 = new Book('001','js设计模式',30);
-		console.log(book1.id,  book1.bookname,  book1.price); // 001 js设计模式 30
-		console.log(book1.isJSBook); // true
-		console.log(book1.bookNum); // undefined
-	*/
-	//  类式继承
-	/*
-			function Person(){}			
-			function Parent(){
-				this.pmsg = '父类的msg';	
+			var anotherbook = {
+				color: 'blue'
+			};
+			extend(anotherbook,book);
+			console.log(anotherbook.price); // 30
+		*/
+		//多继承,此处的extend方法只是实现了浅复制，并未实现深复制，复制的属性只是一个指针而已 -------------------------------------------------------
+		/*浅复制 
+			function extend(){
+				if(arguments.length<1){return ;}
+				var son = arguments[0]; // 第一个参数是需要继承的对象
+				//从第二个参数开始是被继承的对象
+				var par = arguments[1];
+				for(var i=1;  i<arguments.length;  i++){
+					par = arguments[i];
+					for(var tmpattr in par ){
+						son[tmpattr] = par[tmpattr];
+					}
+				}
+				return son;
 			}
-			Parent.prototype = new Person;
-			Parent.prototype.getPMsg = function(){
-				return this.pmsg ;
-			}
-			function Son(){
-				this.smsg = '子类的msg';
-			}
-			Son.prototype = new Parent();
-			Son.prototype.getSMsg = function(){
-				return this.smsg ;
-			}
-			var son1 =  new Son();
-			console.log(son1.getPMsg()); // 父类的msg
-			console.log(son1.getSMsg()); // 子类的msg
-			console.log(son1 instanceof Person); // true
-			console.log(son1 instanceof Parent); // true
-			console.log(son1 instanceof Son); // true
-			console.log(Son instanceof Parent); // false
-			console.log(Son.prototype instanceof Parent); // true
-	*/
-		
-		</script>
-	</body>
+			
+			var obj = {price: 10},
+					obj1 =  {color: 'blue',alike: ['java','php']},
+					obj2 = {pages: 300};
+			console.log(obj.alike); // undefined
+			extend(obj,obj1,obj2); 
+			console.log(obj);
+			//Object {price: 10, color: "blue", alike: Array[2], pages: 300}
+			obj.alike.push('c++');
+			console.log(obj.alike);  // ["java", "php", "c++"]
+			console.log(obj1.alike); // ["java", "php", "c++"]
+			
+			console.log(obj.hasOwnProperty('alike')); // true
+		*/
+		//			console.log(obj);
+		//			console.log(obj1);
+	</script>
+</body>
+
 </html>

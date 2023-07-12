@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>chapter27-链模式</title>
-		
-		
-		
-		<script src="js/jquery-1.12.0.js"></script>
-	</head>
-	<body>
-		链模式： 通过在对象的每一个方法中调用执行完毕后返回当前对象this来实现。
-		
-		使用场景：  类似于jquery的链式调用。
-		
-		<div class="container">
-			<ul id="lists">
-				<li class="item">1</li>
-				<li class="item">12</li>
-				<li class="item">123</li>
-				<li class="item">1234</li>
-				<li class="item">12345</li>
-			</ul>
-			<div id="test">test</div>
-		</div>
-		
-		<script>
-			/*
+
+<head>
+	<meta charset="UTF-8">
+	<title>chapter27-链模式</title>
+
+
+
+	<script src="js/jquery-1.12.0.js"></script>
+</head>
+
+<body>
+	链模式： 通过在对象的每一个方法中调用执行完毕后返回当前对象this来实现。
+
+	使用场景： 类似于jquery的链式调用。
+
+	<div class="container">
+		<ul id="lists">
+			<li class="item">1</li>
+			<li class="item">12</li>
+		</ul>
+		<div id="test">test</div>
+	</div>
+	<div id="demo"></div>
+
+	<script>
+		/*
 			//原型式继承
 			var A = function(){};
 			A.prototype = {
@@ -106,47 +106,47 @@
 				}
 			};
 			*/
-			//虽然返回了结果簇，但是，我们还需要返回的对象中也要有A.fn中的方法。
-			//而我们已经返回了 结果簇，不可能再同时返回另一个对象。
-			//此时，可以将结果簇和A.fn（此处可用this表示）收归到一个对象中。
-			
-			
-			
-			/*
-			var A = function(selector) {
-				return A.fn.init(selector);
+		//虽然返回了结果簇，但是，我们还需要返回的对象中也要有A.fn中的方法。
+		//而我们已经返回了 结果簇，不可能再同时返回另一个对象。
+		//此时，可以将结果簇和A.fn（此处可用this表示）收归到一个对象中。
+
+
+
+		/*
+		var A = function(selector) {
+			return A.fn.init(selector);
+		}
+		
+		A.fn = A.prototype = {
+			init: function(selector) {
+				this[0] =  document.getElementById(selector);
+				this.length = 1; //校正 length属性
+				return this;  //返回当前对象
+			},
+			length: 2,
+			size: function() {
+				return this.length;
 			}
 			
-			A.fn = A.prototype = {
-				init: function(selector) {
-					this[0] =  document.getElementById(selector);
-					this.length = 1; //校正 length属性
-					return this;  //返回当前对象
-				},
-				length: 2,
-				size: function() {
-					return this.length;
-				}
-				
-			};
-			
-			
-			var demo = new A('lists');
-			console.log(demo);   //{0: ul#lists, init: ƒ, length: 1, size: ƒ}
-			console.log(demo.size()); // 1
+		};
+		
+		
+		var demo = new A('lists');
+		console.log(demo);   //{0: ul#lists, init: ƒ, length: 1, size: ƒ}
+		console.log(demo.size()); // 1
 
-			
-			console.log(A('test')); //{0: div#test, init: ƒ, length: 1, size: ƒ}
-			console.log(demo);  //{0: div#test, init: ƒ, length: 1, size: ƒ}
-			
-			//上述测试代码可以看出，后面的test获得的元素覆盖了前面的lists
-			console.log(A.fn[0]);  //<div id="test">test</div>
-			console.log(A.fn.size());  // 1
-			//原因在于每一次执行  A.fn.init()返回的都是同一个对象，即A.fn和A.prototype。
-			//不仅如此，size方法也是共用的。
-			
-			*/		
-			
+		
+		console.log(A('test')); //{0: div#test, init: ƒ, length: 1, size: ƒ}
+		console.log(demo);  //{0: div#test, init: ƒ, length: 1, size: ƒ}
+		
+		//上述测试代码可以看出，后面的test获得的元素覆盖了前面的lists
+		console.log(A.fn[0]);  //<div id="test">test</div>
+		console.log(A.fn.size());  // 1
+		//原因在于每一次执行  A.fn.init()返回的都是同一个对象，即A.fn和A.prototype。
+		//不仅如此，size方法也是共用的。
+		
+		*/
+		/*
 			
 			//要解决覆盖问题，可以直接用new 关键字复制创建即可。
 			var A = function(selector) {
@@ -198,9 +198,127 @@
 			
 			// jquery中的结果更类似于一个数组，而我们的自定义的A更像是一个对象，
 
-			
-			
-			
-		</script>
-	</body>
+			*/
+	</script>
+
+
+	<script>
+		/*
+		function A() {}
+		A.prototype = {
+			length: 2,
+			size: function () {
+				return this.length
+			}
+		}
+		var a = new A()
+		console.log(a.size()) // 2
+		// size绑定在A的原型上不在 A 上
+		// console.log(A.size())  // A.size is not a function, 
+
+		// A() 无返回值， 故找不到size()  
+		// console.log(A().size()) // Cannot read property 'size' of undefined，
+		*/
+		/*
+		var A = function () {
+			return B;
+		}
+		var B = A.prototype = {
+			length: 2,
+			size: function() {
+				return this.length;
+			}
+		}
+		console.log(A().size()) // 2
+		*/
+
+
+		/*
+		// 减少变量的创建，  上面例子的演变
+		var A = function() {
+			return A.fn 
+		}
+		A.fn = A.prototype = {
+			length: 2,
+			size: function() {
+				return this.length;
+			}
+		}
+		*/
+
+		/*
+		// A能访问到init方法能让我们获取到的元素并返回
+		var A = function(selector) {
+			return A.fn.init(selector)
+		}
+		A.fn = A.prototype = {
+			length: 2,
+			init: function(selector) {
+				return document.getElementById(selector)
+			},
+			size: function() {
+				return this.length;
+			}
+		}
+		console.log(A('demo')) // <div id="demo"></div>
+		*/
+
+
+		/*
+		// init方法能获取到元素并返回 
+		// A返回的结果能拥有 A.fn中的方法如： size()
+		function A(selector) {
+			return A.fn.init(selector)
+		}
+		A.fn = A.prototype = {
+			length: 2,
+			init: function(selector) {
+				this[0] = document.getElementById(selector)
+				this.length = 1
+				return this;
+			},
+			size: function() {
+				return this.length
+			},
+		}
+		var demo = A('demo')
+		// {0: div#demo, length: 1, init: ƒ, size: ƒ}
+		console.log(demo)
+		console.log(demo.size()) // 1
+		console.log(A('demo').size()) // 1
+		var test = A('test')
+		// {0: div#test, length: 1, init: ƒ, size: ƒ}
+		console.log(demo) // demo 被覆盖成test 了
+		*/
+
+
+
+		// init方法能获取到元素并返回 
+		// A返回的结果能拥有 A.fn中的方法如： size()
+		function A(selector) {
+			// 解决 查找到的节点 被覆盖的问题
+			return new  A.fn.init(selector)
+		}
+		A.fn = A.prototype = {
+			length: 2,
+			init: function(selector) {
+				this[0] = document.getElementById(selector)
+				this.length = 1
+				return this;
+			},
+			size: function() {
+				return this.length
+			},
+		}
+		var demo = A('demo')
+		var test = A('test')
+		// {0: div#demo, length: 1, init: ƒ, size: ƒ}
+		console.log(A('demo')) 
+		// {0: div#test, length: 1, init: ƒ, size: ƒ}
+		console.log(A('test')) 
+
+		
+	</script>
+</body>
+
 </html>

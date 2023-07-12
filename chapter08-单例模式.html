@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>工厂模式</title>
+</head>
+
+<body>
+
+	<script>
+		var Ming = {
+			g: function (id) {
+				return doucment.getElementById(id)
+			},
+			css: function (id, key, value) {
+				// 通过当前对象 this 类调用 g 方法
+				this.g(id).style[key] = value;
+			}
+		}
+
+		var SingleObj = (function () {
+			var _instance;
+			function Single() {
+				var privateAge = 20; // 静态私有变量
+				return {
+					publicMethod: function () {
+						return privateAge;
+					},
+					publicAttr: '属性'
+				}
+			}
+			return function () {
+				if (!_instance) {
+					_instance = Single()
+				}
+				return _instance
+			}
+		})()
+
+		console.log(SingleObj().publicMethod()); // 20
+	</script>
+</body>
+
+</html>
